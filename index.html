@@ -1,0 +1,2053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Learning Mood Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --success: #06d6a0;
+            --warning: #ffd166;
+            --danger: #ef476f;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --card-bg: #ffffff;
+            --bg-color: #f5f7ff;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --today: #4cc9f0;
+            --border-color: #e9ecef;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--dark);
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode {
+            --bg-color: #1a1a2e;
+            --card-bg: #16213e;
+            --light: #0f3460;
+            --dark: #e6e6e6;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --today: #4cc9f0;
+            --border-color: #2a3b5e;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 15px;
+            background: var(--card-bg);
+            box-shadow: 0 5px 15px var(--shadow);
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h1 i {
+            color: var(--success);
+        }
+
+        h2 {
+            color: var(--secondary);
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        h3 {
+            margin-bottom: 15px;
+            color: var(--dark);
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .theme-toggle {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            border: 2px solid var(--primary);
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            background: var(--secondary);
+            border-color: var(--secondary);
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1200px) {
+            .main-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .calendar-section {
+                grid-column: span 2;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .calendar-section {
+                grid-column: span 1;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 20px var(--shadow);
+            transition: transform 0.3s ease;
+            border: 2px solid var(--border-color);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+
+        .calendar-section {
+            min-height: 650px;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .calendar-nav {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .calendar-nav button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            border: 2px solid var(--primary);
+        }
+
+        .calendar-nav button:hover {
+            transform: scale(1.1);
+            background: var(--secondary);
+            border-color: var(--secondary);
+        }
+
+        .calendar-month-year {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            min-width: 200px;
+            text-align: center;
+            padding: 5px 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--light);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        .calendar-day-header {
+            text-align: center;
+            padding: 12px 5px;
+            font-weight: 600;
+            color: var(--primary);
+            background: var(--light);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            border: 2px solid var(--border-color);
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            border-radius: 10px;
+            background: var(--light);
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            border: 2px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .calendar-day:hover {
+            transform: scale(1.05);
+            border-color: var(--primary);
+            box-shadow: 0 5px 15px var(--shadow);
+        }
+
+        .calendar-day.today {
+            border: 3px solid var(--today);
+            background: rgba(76, 201, 240, 0.1);
+        }
+
+        .calendar-day.other-month {
+            opacity: 0.4;
+        }
+
+        .day-number {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: var(--dark);
+        }
+
+        /* Mood colors */
+        .calendar-day.mood-good {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        .calendar-day.mood-meh {
+            background: var(--warning);
+            color: var(--dark);
+            border-color: var(--warning);
+        }
+
+        .calendar-day.mood-bad {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+
+        .calendar-day.mood-good .day-number,
+        .calendar-day.mood-bad .day-number {
+            color: white;
+        }
+
+        .mood-emoji {
+            font-size: 1.5rem;
+            margin-bottom: 4px;
+        }
+
+        .day-notes-preview {
+            font-size: 0.65rem;
+            opacity: 0.9;
+            text-align: center;
+            max-height: 25px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+            padding: 0 3px;
+        }
+
+        .day-summary {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 10px 25px var(--shadow);
+            z-index: 100;
+            display: none;
+            margin-top: 10px;
+            border: 2px solid var(--primary);
+            font-size: 0.9rem;
+        }
+
+        .calendar-day:hover .day-summary {
+            display: block;
+        }
+
+        .day-summary h4 {
+            margin-bottom: 10px;
+            color: var(--primary);
+            font-size: 1rem;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .mood-display {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            background: var(--light);
+            border: 1px solid var(--border-color);
+        }
+
+        .mood-display.good { background: rgba(6, 214, 160, 0.2); }
+        .mood-display.meh { background: rgba(255, 209, 102, 0.2); }
+        .mood-display.bad { background: rgba(239, 71, 111, 0.2); }
+
+        .notes-display {
+            margin-top: 10px;
+            padding: 10px;
+            background: var(--light);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            max-height: 100px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+        }
+
+        .streaks-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid var(--border-color);
+        }
+
+        .streak-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .streak-card {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s ease;
+            border: 2px solid var(--border-color);
+        }
+
+        .streak-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .streak-card.current {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .streak-card.best {
+            background: linear-gradient(135deg, var(--success), #06b690);
+            color: white;
+            border-color: var(--success);
+        }
+
+        .streak-value {
+            font-size: 2.2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .streak-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* To-Do List Styles */
+        .todo-container {
+            margin-top: 10px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .todo-list {
+            list-style: none;
+            max-height: 250px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            padding-right: 5px;
+            flex-grow: 1;
+        }
+
+        .todo-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .todo-list::-webkit-scrollbar-track {
+            background: var(--light);
+            border-radius: 3px;
+        }
+
+        .todo-list::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background: var(--light);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        .todo-item:hover {
+            background: var(--shadow);
+            border-color: var(--primary);
+        }
+
+        .todo-item.completed {
+            opacity: 0.7;
+        }
+
+        .todo-item.completed .todo-text {
+            text-decoration: line-through;
+            color: var(--gray);
+        }
+
+        .todo-checkbox {
+            margin-right: 15px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--success);
+        }
+
+        .todo-text {
+            flex-grow: 1;
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+
+        .todo-actions {
+            display: flex;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .todo-item:hover .todo-actions {
+            opacity: 1;
+        }
+
+        .todo-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--gray);
+            transition: color 0.3s ease;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .todo-actions button:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .todo-actions .edit-todo:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .todo-actions .delete-todo:hover {
+            color: var(--danger);
+            border-color: var(--danger);
+        }
+
+        .add-todo {
+            display: flex;
+            margin-top: 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .add-todo input {
+            flex-grow: 1;
+            padding: 12px 15px;
+            border: none;
+            background: var(--card-bg);
+            color: var(--dark);
+            font-size: 0.95rem;
+        }
+
+        .add-todo input:focus {
+            outline: none;
+        }
+
+        .add-todo button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border-left: 2px solid var(--border-color);
+        }
+
+        .add-todo button:hover {
+            background: var(--secondary);
+        }
+
+        .todo-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            color: var(--gray);
+            background: var(--light);
+        }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            border: 3px solid var(--border-color);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .modal-title {
+            color: var(--primary);
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: var(--gray);
+            transition: color 0.3s ease;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+        }
+
+        .close-modal:hover {
+            color: var(--danger);
+            background: rgba(239, 71, 111, 0.1);
+            border-color: var(--danger);
+        }
+
+        .mood-selector {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            gap: 10px;
+        }
+
+        .mood-option {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid var(--border-color);
+            background: var(--light);
+        }
+
+        .mood-option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px var(--shadow);
+        }
+
+        .mood-option.selected {
+            border-color: var(--primary);
+            box-shadow: 0 5px 15px var(--shadow);
+        }
+
+        .mood-option.good.selected {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        .mood-option.meh.selected {
+            background: var(--warning);
+            color: var(--dark);
+            border-color: var(--warning);
+        }
+
+        .mood-option.bad.selected {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+
+        .mood-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .mood-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .mood-description {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin-top: 5px;
+            text-align: center;
+        }
+
+        .notes-section {
+            margin-bottom: 25px;
+        }
+
+        .notes-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .notes-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--card-bg);
+            color: var(--dark);
+            font-size: 1rem;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+
+        .notes-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .save-btn {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            width: 100%;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border: 2px solid var(--success);
+        }
+
+        .save-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(6, 214, 160, 0.3);
+            background: #05c290;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid var(--border-color);
+        }
+
+        .stat-card:hover {
+            border-color: var(--primary);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .goal-section {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid var(--border-color);
+        }
+
+        .goal-container {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 10px;
+            border: 2px solid var(--border-color);
+        }
+
+        .goal-header {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .goal-progress-bar {
+            height: 10px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 5px;
+            margin-top: 15px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .goal-progress-fill {
+            height: 100%;
+            background: var(--success);
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+
+        .goal-text {
+            text-align: right;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            color: var(--gray);
+        }
+
+        .today-reflection {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--light);
+            text-align: center;
+        }
+
+        .today-mood-emoji {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+
+        .today-status {
+            color: var(--gray);
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        .today-notes {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 10px;
+            min-height: 120px;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px var(--shadow);
+            display: none;
+            z-index: 1001;
+            animation: slideIn 0.3s ease;
+            border: 2px solid var(--success);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            gap: 15px;
+            flex-wrap: wrap;
+            padding: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 15px;
+            background: var(--card-bg);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border-radius: 10px;
+            border: 2px solid;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(67, 97, 238, 0.3);
+            background: var(--secondary);
+            border-color: var(--secondary);
+        }
+
+        .btn-secondary {
+            background: var(--light);
+            color: var(--dark);
+            border-color: var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px var(--shadow);
+            background: var(--card-bg);
+            border-color: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            .calendar-grid {
+                gap: 5px;
+            }
+            
+            .calendar-day-header {
+                padding: 10px 3px;
+                font-size: 0.8rem;
+            }
+            
+            .calendar-day {
+                padding: 5px;
+            }
+            
+            .day-number {
+                font-size: 1rem;
+            }
+            
+            .mood-emoji {
+                font-size: 1.2rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .modal-content {
+                padding: 20px;
+            }
+            
+            .mood-selector {
+                flex-direction: column;
+            }
+            
+            .todo-list {
+                max-height: 200px;
+            }
+            
+            .streak-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .calendar-month-year {
+                font-size: 1.2rem;
+                min-width: 150px;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-calendar-heart"></i> Daily Learning Mood Tracker</h1>
+            <button class="theme-toggle" id="themeToggle">
+                <i class="fas fa-moon"></i> Dark Mode
+            </button>
+        </header>
+
+        <div class="notification" id="notification">
+            <i class="fas fa-check-circle"></i> Mood saved successfully!
+        </div>
+
+        <div class="modal" id="dayModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="modalDayTitle">Track Your Learning Day</h3>
+                    <button class="close-modal" id="closeModal">&times;</button>
+                </div>
+                
+                <div class="mood-selector">
+                    <div class="mood-option good" data-mood="good">
+                        <div class="mood-icon">😊</div>
+                        <div class="mood-name">Good Day</div>
+                        <div class="mood-description">Productive & focused</div>
+                    </div>
+                    
+                    <div class="mood-option meh" data-mood="meh">
+                        <div class="mood-icon">😐</div>
+                        <div class="mood-name">Meh Day</div>
+                        <div class="mood-description">Could be better</div>
+                    </div>
+                    
+                    <div class="mood-option bad" data-mood="bad">
+                        <div class="mood-icon">😔</div>
+                        <div class="mood-name">Bad Day</div>
+                        <div class="mood-description">Struggled today</div>
+                    </div>
+                </div>
+                
+                <div class="notes-section">
+                    <label class="notes-label">Daily Notes:</label>
+                    <textarea class="notes-textarea" id="dailyNotes" placeholder="How was your learning today? What went well? What could be better? Any insights or reflections..."></textarea>
+                </div>
+                
+                <button class="save-btn" id="saveMoodBtn">
+                    <i class="fas fa-save"></i> Save Daily Mood
+                </button>
+            </div>
+        </div>
+
+        <section class="main-grid">
+            <!-- Calendar Section -->
+            <div class="card calendar-section">
+                <div class="calendar-header">
+                    <h2><i class="fas fa-calendar-alt"></i> Learning Mood Calendar</h2>
+                    <div class="calendar-nav">
+                        <button id="prevMonth"><i class="fas fa-chevron-left"></i></button>
+                        <div class="calendar-month-year" id="currentMonthYear">January 2024</div>
+                        <button id="nextMonth"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+                
+                <div class="calendar-grid" id="calendarGrid">
+                    <!-- Calendar will be generated here -->
+                </div>
+                
+                <div class="streaks-section">
+                    <h3><i class="fas fa-fire"></i> Your Learning Streaks</h3>
+                    <div class="streak-cards">
+                        <div class="streak-card current">
+                            <div class="streak-value" id="currentStreak">0</div>
+                            <div class="streak-label">Current Streak</div>
+                        </div>
+                        <div class="streak-card best">
+                            <div class="streak-value" id="bestStreak">0</div>
+                            <div class="streak-label">Best Streak</div>
+                        </div>
+                        <div class="streak-card">
+                            <div class="streak-value" id="totalDays">0</div>
+                            <div class="streak-label">Days Tracked</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Middle Column: Stats & To-Do -->
+            <div class="card">
+                <h2><i class="fas fa-chart-pie"></i> Monthly Statistics</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="goodDays">0</div>
+                        <div class="stat-label">Good Days</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="mehDays">0</div>
+                        <div class="stat-label">Meh Days</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="badDays">0</div>
+                        <div class="stat-label">Bad Days</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="monthAverage">-</div>
+                        <div class="stat-label">Avg. Mood</div>
+                    </div>
+                </div>
+                
+                <div class="goal-section">
+                    <h3><i class="fas fa-bullseye"></i> Monthly Goal</h3>
+                    <div class="goal-container">
+                        <div class="goal-header">
+                            <span>Good Learning Days</span>
+                            <span id="goodDaysTarget">15</span>
+                        </div>
+                        <div class="goal-progress-bar">
+                            <div class="goal-progress-fill" id="goalProgress" style="width: 0%"></div>
+                        </div>
+                        <div class="goal-text">
+                            <span id="goalProgressText">0/15</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column: To-Do & Today's Reflection -->
+            <div class="card">
+                <h2><i class="fas fa-tasks"></i> Daily To-Do List</h2>
+                <div class="todo-container">
+                    <ul class="todo-list" id="todoList">
+                        <!-- Todo items will be added here -->
+                    </ul>
+                    
+                    <div class="todo-stats">
+                        <span id="totalTasks">0 tasks</span>
+                        <span id="completedTasks">0 completed</span>
+                    </div>
+                    
+                    <div class="add-todo">
+                        <input type="text" id="todoInput" placeholder="Add a new task...">
+                        <button id="addTodoBtn"><i class="fas fa-plus"></i> Add</button>
+                    </div>
+                </div>
+                
+                <div class="today-reflection">
+                    <div class="today-mood-emoji" id="todayMoodEmoji">📝</div>
+                    <div class="today-status" id="todayStatus">
+                        No mood tracked for today yet.
+                    </div>
+                    <div class="today-notes" id="todayNotes">
+                        <div style="color: var(--gray); font-style: italic;">
+                            Click on today in the calendar to log your daily mood and notes.
+                        </div>
+                    </div>
+                    <button class="save-btn" id="logTodayBtn" style="background: var(--primary); border-color: var(--primary);">
+                        <i class="fas fa-plus"></i> Log Today's Mood
+                    </button>
+                </div>
+            </div>
+        </section>
+        
+        <div class="controls">
+            <button class="btn btn-secondary" id="exportBtn">
+                <i class="fas fa-download"></i> Export Data
+            </button>
+            <button class="btn btn-secondary" id="importBtn">
+                <i class="fas fa-upload"></i> Import Data
+            </button>
+            <button class="btn btn-primary" id="saveAllBtn">
+                <i class="fas fa-save"></i> Save All Data
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Initialize data structure
+        let appData = {
+            currentDate: new Date(),
+            selectedDate: null,
+            dailyMoods: {}, // Store moods by date string
+            todos: [], // Store todo items
+            currentStreak: 0,
+            bestStreak: 0,
+            monthlyGoal: 15 // Default goal: 15 good days per month
+        };
+
+        // DOM Elements
+        const calendarGrid = document.getElementById('calendarGrid');
+        const currentMonthYear = document.getElementById('currentMonthYear');
+        const prevMonthBtn = document.getElementById('prevMonth');
+        const nextMonthBtn = document.getElementById('nextMonth');
+        const themeToggle = document.getElementById('themeToggle');
+        const notification = document.getElementById('notification');
+        const dayModal = document.getElementById('dayModal');
+        const closeModal = document.getElementById('closeModal');
+        const modalDayTitle = document.getElementById('modalDayTitle');
+        const moodOptions = document.querySelectorAll('.mood-option');
+        const dailyNotes = document.getElementById('dailyNotes');
+        const saveMoodBtn = document.getElementById('saveMoodBtn');
+        const logTodayBtn = document.getElementById('logTodayBtn');
+        const saveAllBtn = document.getElementById('saveAllBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const importBtn = document.getElementById('importBtn');
+        const todayMoodEmoji = document.getElementById('todayMoodEmoji');
+        const todayStatus = document.getElementById('todayStatus');
+        const todayNotes = document.getElementById('todayNotes');
+        const currentStreakEl = document.getElementById('currentStreak');
+        const bestStreakEl = document.getElementById('bestStreak');
+        const totalDaysEl = document.getElementById('totalDays');
+        const goodDaysEl = document.getElementById('goodDays');
+        const mehDaysEl = document.getElementById('mehDays');
+        const badDaysEl = document.getElementById('badDays');
+        const monthAverageEl = document.getElementById('monthAverage');
+        const goalProgress = document.getElementById('goalProgress');
+        const goalProgressText = document.getElementById('goalProgressText');
+        const goodDaysTarget = document.getElementById('goodDaysTarget');
+        
+        // To-Do List Elements
+        const todoList = document.getElementById('todoList');
+        const todoInput = document.getElementById('todoInput');
+        const addTodoBtn = document.getElementById('addTodoBtn');
+        const totalTasksEl = document.getElementById('totalTasks');
+        const completedTasksEl = document.getElementById('completedTasks');
+
+        // Mood data
+        const moods = {
+            good: { emoji: '😊', color: 'success', name: 'Good', value: 3 },
+            meh: { emoji: '😐', color: 'warning', name: 'Meh', value: 2 },
+            bad: { emoji: '😔', color: 'danger', name: 'Bad', value: 1 }
+        };
+
+        // Month names
+        const monthNames = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+
+        // Day names
+        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+        // Initialize application
+        function initApp() {
+            // Load saved data from localStorage
+            loadSavedData();
+            
+            // Update streaks
+            updateStreaks();
+            
+            // Render UI
+            renderCalendar();
+            updateCalendarHeader();
+            updateTodayDisplay();
+            updateStats();
+            updateGoalProgress();
+            renderTodos();
+            updateTodoStats();
+            
+            // Set up event listeners
+            setupEventListeners();
+        }
+
+        // Render calendar
+        function renderCalendar() {
+            calendarGrid.innerHTML = '';
+            
+            // Add day headers
+            dayNames.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'calendar-day-header';
+                dayHeader.textContent = day;
+                calendarGrid.appendChild(dayHeader);
+            });
+            
+            const year = appData.currentDate.getFullYear();
+            const month = appData.currentDate.getMonth();
+            
+            // Get first day of month
+            const firstDay = new Date(year, month, 1);
+            // Get last day of month
+            const lastDay = new Date(year, month + 1, 0);
+            
+            // Calculate days from previous month to show
+            const startDay = firstDay.getDay();
+            
+            // Calculate days from next month to show
+            const totalCells = 42; // 6 weeks * 7 days
+            const daysInMonth = lastDay.getDate();
+            
+            // Previous month
+            const prevMonthLastDay = new Date(year, month, 0).getDate();
+            
+            // Fill calendar
+            for (let i = 0; i < totalCells; i++) {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'calendar-day';
+                
+                let dayNumber, isCurrentMonth, date;
+                
+                if (i < startDay) {
+                    // Previous month
+                    dayNumber = prevMonthLastDay - startDay + i + 1;
+                    isCurrentMonth = false;
+                    const prevMonth = month === 0 ? 11 : month - 1;
+                    const prevYear = month === 0 ? year - 1 : year;
+                    date = new Date(prevYear, prevMonth, dayNumber);
+                } else if (i < startDay + daysInMonth) {
+                    // Current month
+                    dayNumber = i - startDay + 1;
+                    isCurrentMonth = true;
+                    date = new Date(year, month, dayNumber);
+                } else {
+                    // Next month
+                    dayNumber = i - startDay - daysInMonth + 1;
+                    isCurrentMonth = false;
+                    const nextMonth = month === 11 ? 0 : month + 1;
+                    const nextYear = month === 11 ? year + 1 : year;
+                    date = new Date(nextYear, nextMonth, dayNumber);
+                }
+                
+                // Check if today
+                const today = new Date();
+                const isToday = date.getDate() === today.getDate() && 
+                               date.getMonth() === today.getMonth() && 
+                               date.getFullYear() === today.getFullYear();
+                
+                if (isToday) {
+                    dayDiv.classList.add('today');
+                }
+                
+                if (!isCurrentMonth) {
+                    dayDiv.classList.add('other-month');
+                }
+                
+                // Store date as data attribute
+                const dateString = date.toISOString().split('T')[0];
+                dayDiv.dataset.date = dateString;
+                
+                // Day number
+                const dayNumberDiv = document.createElement('div');
+                dayNumberDiv.className = 'day-number';
+                dayNumberDiv.textContent = dayNumber;
+                dayDiv.appendChild(dayNumberDiv);
+                
+                // Check if we have mood data for this day
+                const dayData = appData.dailyMoods[dateString];
+                
+                if (dayData) {
+                    const mood = dayData.mood;
+                    const moodInfo = moods[mood];
+                    
+                    // Add mood class
+                    dayDiv.classList.add(`mood-${mood}`);
+                    
+                    // Add emoji
+                    const moodEmoji = document.createElement('div');
+                    moodEmoji.className = 'mood-emoji';
+                    moodEmoji.textContent = moodInfo.emoji;
+                    dayDiv.appendChild(moodEmoji);
+                    
+                    // Add notes preview (if any)
+                    if (dayData.notes && dayData.notes.trim()) {
+                        const notesPreview = document.createElement('div');
+                        notesPreview.className = 'day-notes-preview';
+                        notesPreview.textContent = dayData.notes.substring(0, 20) + 
+                                                  (dayData.notes.length > 20 ? '...' : '');
+                        dayDiv.appendChild(notesPreview);
+                    }
+                }
+                
+                // Day summary on hover
+                const summaryDiv = document.createElement('div');
+                summaryDiv.className = 'day-summary';
+                
+                const summaryTitle = document.createElement('h4');
+                summaryTitle.textContent = date.toLocaleDateString('en-US', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+                summaryDiv.appendChild(summaryTitle);
+                
+                if (dayData) {
+                    const mood = dayData.mood;
+                    const moodInfo = moods[mood];
+                    
+                    const moodDisplay = document.createElement('div');
+                    moodDisplay.className = `mood-display ${mood}`;
+                    
+                    const moodEmoji = document.createElement('span');
+                    moodEmoji.textContent = moodInfo.emoji;
+                    moodEmoji.style.fontSize = '1.5rem';
+                    
+                    const moodText = document.createElement('span');
+                    moodText.textContent = `${moodInfo.name} Day`;
+                    moodText.style.fontWeight = '600';
+                    
+                    moodDisplay.appendChild(moodEmoji);
+                    moodDisplay.appendChild(moodText);
+                    summaryDiv.appendChild(moodDisplay);
+                    
+                    if (dayData.notes && dayData.notes.trim()) {
+                        const notesDisplay = document.createElement('div');
+                        notesDisplay.className = 'notes-display';
+                        notesDisplay.textContent = dayData.notes;
+                        summaryDiv.appendChild(notesDisplay);
+                    }
+                } else {
+                    const noDataDiv = document.createElement('div');
+                    noDataDiv.textContent = 'No mood tracked for this day';
+                    noDataDiv.style.color = 'var(--gray)';
+                    noDataDiv.style.fontSize = '0.9rem';
+                    noDataDiv.style.textAlign = 'center';
+                    noDataDiv.style.padding = '10px';
+                    summaryDiv.appendChild(noDataDiv);
+                }
+                
+                dayDiv.appendChild(summaryDiv);
+                
+                // Click event to open day modal
+                dayDiv.addEventListener('click', () => {
+                    openDayModal(date);
+                });
+                
+                calendarGrid.appendChild(dayDiv);
+            }
+        }
+
+        // Render todo list
+        function renderTodos() {
+            todoList.innerHTML = '';
+            
+            if (appData.todos.length === 0) {
+                const emptyMsg = document.createElement('li');
+                emptyMsg.className = 'todo-item';
+                emptyMsg.style.justifyContent = 'center';
+                emptyMsg.style.textAlign = 'center';
+                emptyMsg.textContent = 'No tasks yet. Add your first task!';
+                todoList.appendChild(emptyMsg);
+                return;
+            }
+            
+            appData.todos.forEach((todo, index) => {
+                const todoItem = document.createElement('li');
+                todoItem.className = `todo-item ${todo.completed ? 'completed' : ''}`;
+                todoItem.dataset.index = index;
+                
+                todoItem.innerHTML = `
+                    <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''} data-index="${index}">
+                    <span class="todo-text">${todo.text}</span>
+                    <div class="todo-actions">
+                        <button class="edit-todo" data-index="${index}"><i class="fas fa-edit"></i></button>
+                        <button class="delete-todo" data-index="${index}"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+                
+                todoList.appendChild(todoItem);
+            });
+            
+            // Add event listeners to todo items
+            document.querySelectorAll('.todo-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const index = parseInt(this.dataset.index);
+                    appData.todos[index].completed = this.checked;
+                    renderTodos();
+                    updateTodoStats();
+                    saveToLocalStorage();
+                });
+            });
+            
+            // Make todo text clickable to toggle completion
+            document.querySelectorAll('.todo-text').forEach(text => {
+                text.addEventListener('click', function() {
+                    const index = parseInt(this.parentElement.dataset.index);
+                    appData.todos[index].completed = !appData.todos[index].completed;
+                    renderTodos();
+                    updateTodoStats();
+                    saveToLocalStorage();
+                });
+            });
+            
+            document.querySelectorAll('.edit-todo').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const index = parseInt(this.dataset.index);
+                    const newText = prompt('Edit task:', appData.todos[index].text);
+                    if (newText !== null && newText.trim() !== '') {
+                        appData.todos[index].text = newText.trim();
+                        renderTodos();
+                        updateTodoStats();
+                        saveToLocalStorage();
+                        showNotification('Task updated!');
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.delete-todo').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const index = parseInt(this.dataset.index);
+                    if (confirm('Are you sure you want to delete this task?')) {
+                        appData.todos.splice(index, 1);
+                        renderTodos();
+                        updateTodoStats();
+                        saveToLocalStorage();
+                        showNotification('Task deleted!');
+                    }
+                });
+            });
+        }
+
+        // Update todo statistics
+        function updateTodoStats() {
+            const totalTasks = appData.todos.length;
+            const completedTasks = appData.todos.filter(todo => todo.completed).length;
+            
+            totalTasksEl.textContent = `${totalTasks} ${totalTasks === 1 ? 'task' : 'tasks'}`;
+            completedTasksEl.textContent = `${completedTasks} completed`;
+        }
+
+        // Add new todo
+        function addTodo() {
+            const todoText = todoInput.value.trim();
+            
+            if (todoText) {
+                appData.todos.push({
+                    text: todoText,
+                    completed: false,
+                    createdAt: new Date().toISOString()
+                });
+                
+                todoInput.value = '';
+                renderTodos();
+                updateTodoStats();
+                saveToLocalStorage();
+                showNotification('Task added!');
+            }
+        }
+
+        // Update calendar header
+        function updateCalendarHeader() {
+            const year = appData.currentDate.getFullYear();
+            const month = monthNames[appData.currentDate.getMonth()];
+            currentMonthYear.textContent = `${month} ${year}`;
+        }
+
+        // Open day modal for logging mood
+        function openDayModal(date) {
+            appData.selectedDate = date;
+            const dateString = date.toISOString().split('T')[0];
+            
+            // Update modal title
+            const formattedDate = date.toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            modalDayTitle.textContent = `How was ${date.getDate()} ${monthNames[date.getMonth()]}?`;
+            
+            // Reset mood selection
+            moodOptions.forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Clear notes
+            dailyNotes.value = '';
+            
+            // Load existing data if any
+            const dayData = appData.dailyMoods[dateString];
+            if (dayData) {
+                // Select the mood
+                moodOptions.forEach(option => {
+                    if (option.dataset.mood === dayData.mood) {
+                        option.classList.add('selected');
+                    }
+                });
+                
+                // Load notes
+                dailyNotes.value = dayData.notes || '';
+            }
+            
+            // Show modal
+            dayModal.style.display = 'flex';
+            
+            // Focus on notes if mood already selected
+            if (dayData) {
+                dailyNotes.focus();
+            }
+        }
+
+        // Save daily mood
+        function saveDailyMood() {
+            if (!appData.selectedDate) return;
+            
+            const dateString = appData.selectedDate.toISOString().split('T')[0];
+            
+            // Get selected mood
+            let selectedMood = null;
+            moodOptions.forEach(option => {
+                if (option.classList.contains('selected')) {
+                    selectedMood = option.dataset.mood;
+                }
+            });
+            
+            if (!selectedMood) {
+                showNotification('Please select a mood first!', 'warning');
+                return;
+            }
+            
+            // Save mood and notes
+            if (!appData.dailyMoods[dateString]) {
+                appData.dailyMoods[dateString] = {};
+            }
+            
+            appData.dailyMoods[dateString].mood = selectedMood;
+            appData.dailyMoods[dateString].notes = dailyNotes.value.trim();
+            appData.dailyMoods[dateString].date = dateString;
+            
+            // Update streaks
+            updateStreaks();
+            
+            // Update UI
+            renderCalendar();
+            updateTodayDisplay();
+            updateStats();
+            updateGoalProgress();
+            saveToLocalStorage();
+            
+            // Close modal
+            dayModal.style.display = 'none';
+            
+            // Show notification
+            showNotification(`Mood saved for ${appData.selectedDate.getDate()} ${monthNames[appData.selectedDate.getMonth()]}!`);
+        }
+
+        // Update streaks
+        function updateStreaks() {
+            const today = new Date();
+            const todayString = today.toISOString().split('T')[0];
+            
+            // Calculate current streak
+            let currentStreak = 0;
+            let date = new Date(today);
+            
+            // Check backwards from today
+            while (true) {
+                const dateString = date.toISOString().split('T')[0];
+                if (appData.dailyMoods[dateString]) {
+                    currentStreak++;
+                    date.setDate(date.getDate() - 1);
+                } else {
+                    break;
+                }
+            }
+            
+            // Calculate best streak
+            let bestStreak = 0;
+            let tempStreak = 0;
+            
+            // Get all dates sorted
+            const allDates = Object.keys(appData.dailyMoods).sort();
+            
+            for (let i = 0; i < allDates.length; i++) {
+                if (i === 0) {
+                    tempStreak = 1;
+                } else {
+                    const prevDate = new Date(allDates[i - 1]);
+                    const currDate = new Date(allDates[i]);
+                    const diffDays = Math.floor((currDate - prevDate) / (1000 * 60 * 60 * 24));
+                    
+                    if (diffDays === 1) {
+                        tempStreak++;
+                    } else {
+                        bestStreak = Math.max(bestStreak, tempStreak);
+                        tempStreak = 1;
+                    }
+                }
+            }
+            
+            bestStreak = Math.max(bestStreak, tempStreak);
+            
+            // Update app data
+            appData.currentStreak = currentStreak;
+            appData.bestStreak = Math.max(appData.bestStreak, bestStreak);
+            
+            // Update UI
+            currentStreakEl.textContent = currentStreak;
+            bestStreakEl.textContent = appData.bestStreak;
+            totalDaysEl.textContent = Object.keys(appData.dailyMoods).length;
+        }
+
+        // Update today's display
+        function updateTodayDisplay() {
+            const today = new Date();
+            const todayString = today.toISOString().split('T')[0];
+            const dayData = appData.dailyMoods[todayString];
+            
+            if (dayData) {
+                const moodInfo = moods[dayData.mood];
+                
+                // Update emoji
+                todayMoodEmoji.textContent = moodInfo.emoji;
+                
+                // Update status
+                todayStatus.textContent = `You had a ${moodInfo.name.toLowerCase()} learning day`;
+                todayStatus.style.color = `var(--${moodInfo.color})`;
+                
+                // Update notes
+                if (dayData.notes && dayData.notes.trim()) {
+                    todayNotes.innerHTML = `<div style="color: var(--dark);">${dayData.notes.replace(/\n/g, '<br>')}</div>`;
+                } else {
+                    todayNotes.innerHTML = '<div style="color: var(--gray); font-style: italic;">No notes added for today.</div>';
+                }
+            } else {
+                // Reset to default
+                todayMoodEmoji.textContent = '📝';
+                todayStatus.textContent = 'No mood tracked for today yet.';
+                todayStatus.style.color = 'var(--gray)';
+                todayNotes.innerHTML = '<div style="color: var(--gray); font-style: italic;">Click on today in the calendar to log your daily mood and notes.</div>';
+            }
+        }
+
+        // Update monthly statistics
+        function updateStats() {
+            const year = appData.currentDate.getFullYear();
+            const month = appData.currentDate.getMonth();
+            
+            let goodCount = 0;
+            let mehCount = 0;
+            let badCount = 0;
+            let totalMoodValue = 0;
+            let daysWithMood = 0;
+            
+            // Get all days in current month
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day);
+                const dateString = date.toISOString().split('T')[0];
+                
+                if (appData.dailyMoods[dateString]) {
+                    const mood = appData.dailyMoods[dateString].mood;
+                    const moodValue = moods[mood].value;
+                    
+                    totalMoodValue += moodValue;
+                    daysWithMood++;
+                    
+                    switch(mood) {
+                        case 'good': goodCount++; break;
+                        case 'meh': mehCount++; break;
+                        case 'bad': badCount++; break;
+                    }
+                }
+            }
+            
+            // Update UI
+            goodDaysEl.textContent = goodCount;
+            mehDaysEl.textContent = mehCount;
+            badDaysEl.textContent = badCount;
+            
+            // Calculate average mood
+            if (daysWithMood > 0) {
+                const avgMoodValue = totalMoodValue / daysWithMood;
+                let avgMoodText = '';
+                
+                if (avgMoodValue >= 2.5) avgMoodText = '😊 Good';
+                else if (avgMoodValue >= 1.5) avgMoodText = '😐 Meh';
+                else avgMoodText = '😔 Bad';
+                
+                monthAverageEl.textContent = avgMoodText;
+            } else {
+                monthAverageEl.textContent = '-';
+            }
+        }
+
+        // Update goal progress
+        function updateGoalProgress() {
+            const year = appData.currentDate.getFullYear();
+            const month = appData.currentDate.getMonth();
+            
+            let goodCount = 0;
+            
+            // Count good days in current month
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day);
+                const dateString = date.toISOString().split('T')[0];
+                
+                if (appData.dailyMoods[dateString] && appData.dailyMoods[dateString].mood === 'good') {
+                    goodCount++;
+                }
+            }
+            
+            // Update goal progress
+            const progressPercent = Math.min(100, (goodCount / appData.monthlyGoal) * 100);
+            
+            goalProgress.style.width = `${progressPercent}%`;
+            goalProgressText.textContent = `${goodCount}/${appData.monthlyGoal}`;
+            goodDaysTarget.textContent = appData.monthlyGoal;
+        }
+
+        // Show notification
+        function showNotification(message, type = 'success') {
+            notification.textContent = message;
+            
+            // Set color based on type
+            if (type === 'warning') {
+                notification.style.background = 'var(--warning)';
+                notification.style.color = 'var(--dark)';
+                notification.style.borderColor = 'var(--warning)';
+            } else if (type === 'danger') {
+                notification.style.background = 'var(--danger)';
+                notification.style.borderColor = 'var(--danger)';
+            } else {
+                notification.style.background = 'var(--success)';
+                notification.style.borderColor = 'var(--success)';
+            }
+            
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
+        // Save to localStorage
+        function saveToLocalStorage() {
+            localStorage.setItem('moodTrackerData', JSON.stringify(appData));
+        }
+
+        // Load saved data from localStorage
+        function loadSavedData() {
+            const savedData = localStorage.getItem('moodTrackerData');
+            
+            if (savedData) {
+                const parsedData = JSON.parse(savedData);
+                
+                // Merge saved data
+                if (parsedData.dailyMoods) {
+                    appData.dailyMoods = parsedData.dailyMoods;
+                }
+                
+                if (parsedData.todos) {
+                    appData.todos = parsedData.todos;
+                }
+                
+                if (parsedData.currentDate) {
+                    appData.currentDate = new Date(parsedData.currentDate);
+                }
+                
+                if (parsedData.currentStreak !== undefined) {
+                    appData.currentStreak = parsedData.currentStreak;
+                }
+                
+                if (parsedData.bestStreak !== undefined) {
+                    appData.bestStreak = parsedData.bestStreak;
+                }
+                
+                if (parsedData.monthlyGoal !== undefined) {
+                    appData.monthlyGoal = parsedData.monthlyGoal;
+                }
+            }
+        }
+
+        // Export data as JSON
+        function exportData() {
+            const dataStr = JSON.stringify(appData, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `mood-tracker-${new Date().toISOString().slice(0,10)}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showNotification('Data exported successfully!');
+        }
+
+        // Import data from JSON file
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = function(event) {
+                const file = event.target.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    try {
+                        const importedData = JSON.parse(e.target.result);
+                        
+                        // Validate and merge imported data
+                        if (importedData.dailyMoods) {
+                            appData.dailyMoods = importedData.dailyMoods;
+                        }
+                        
+                        if (importedData.todos) {
+                            appData.todos = importedData.todos;
+                        }
+                        
+                        if (importedData.bestStreak !== undefined) {
+                            appData.bestStreak = importedData.bestStreak;
+                        }
+                        
+                        if (importedData.monthlyGoal !== undefined) {
+                            appData.monthlyGoal = importedData.monthlyGoal;
+                        }
+                        
+                        // Update UI
+                        updateStreaks();
+                        renderCalendar();
+                        updateTodayDisplay();
+                        updateStats();
+                        updateGoalProgress();
+                        renderTodos();
+                        updateTodoStats();
+                        saveToLocalStorage();
+                        
+                        showNotification('Data imported successfully!');
+                    } catch (error) {
+                        alert('Error reading file. Please make sure it\'s a valid JSON file.');
+                    }
+                };
+                
+                reader.readAsText(file);
+            };
+            
+            input.click();
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Calendar navigation
+            prevMonthBtn.addEventListener('click', () => {
+                appData.currentDate.setMonth(appData.currentDate.getMonth() - 1);
+                renderCalendar();
+                updateCalendarHeader();
+                updateStats();
+                updateGoalProgress();
+            });
+            
+            nextMonthBtn.addEventListener('click', () => {
+                appData.currentDate.setMonth(appData.currentDate.getMonth() + 1);
+                renderCalendar();
+                updateCalendarHeader();
+                updateStats();
+                updateGoalProgress();
+            });
+            
+            // Mood selection
+            moodOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    moodOptions.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                });
+            });
+            
+            // Save mood button
+            saveMoodBtn.addEventListener('click', saveDailyMood);
+            
+            // Log today button
+            logTodayBtn.addEventListener('click', () => {
+                openDayModal(new Date());
+            });
+            
+            // To-Do List
+            addTodoBtn.addEventListener('click', addTodo);
+            
+            todoInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    addTodo();
+                }
+            });
+            
+            // Theme toggle
+            themeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                
+                if (document.body.classList.contains('dark-mode')) {
+                    themeToggle.innerHTML = '<i class="fas fa-sun"></i> Light Mode';
+                } else {
+                    themeToggle.innerHTML = '<i class="fas fa-moon"></i> Dark Mode';
+                }
+            });
+            
+            // Modal close
+            closeModal.addEventListener('click', () => {
+                dayModal.style.display = 'none';
+            });
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target === dayModal) {
+                    dayModal.style.display = 'none';
+                }
+            });
+            
+            // Control buttons
+            saveAllBtn.addEventListener('click', () => {
+                saveToLocalStorage();
+                showNotification('All data saved!');
+            });
+            
+            exportBtn.addEventListener('click', exportData);
+            
+            importBtn.addEventListener('click', importData);
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                // Ctrl+S to save
+                if (e.ctrlKey && e.key === 's') {
+                    e.preventDefault();
+                    saveToLocalStorage();
+                    showNotification('Data saved!');
+                }
+                
+                // Escape to close modal
+                if (e.key === 'Escape') {
+                    dayModal.style.display = 'none';
+                }
+                
+                // Number keys for mood selection in modal
+                if (dayModal.style.display === 'flex') {
+                    if (e.key === '1') {
+                        moodOptions.forEach(opt => opt.classList.remove('selected'));
+                        moodOptions[0].classList.add('selected');
+                    } else if (e.key === '2') {
+                        moodOptions.forEach(opt => opt.classList.remove('selected'));
+                        moodOptions[1].classList.add('selected');
+                    } else if (e.key === '3') {
+                        moodOptions.forEach(opt => opt.classList.remove('selected'));
+                        moodOptions[2].classList.add('selected');
+                    }
+                }
+            });
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
